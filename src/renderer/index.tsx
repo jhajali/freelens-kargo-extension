@@ -38,49 +38,49 @@ export function KargoIcon(props: Renderer.Component.IconProps) {
 export default class KargoExtension extends Renderer.LensExtension {
   clusterPages = [
     {
-      id: "dashboard",
+      id: "kargo-dashboard",
       components: {
         Page: () => <KargoOverviewPage />,
       },
     },
     {
-      id: "projects",
+      id: "kargo-projects",
       components: {
         Page: () => <ProjectsPage />,
       },
     },
     {
-      id: "stages",
+      id: "kargo-stages",
       components: {
         Page: () => <StagesPage />,
       },
     },
     {
-      id: "freight",
+      id: "kargo-freight",
       components: {
         Page: () => <FreightPage />,
       },
     },
     {
-      id: "warehouses",
+      id: "kargo-warehouses",
       components: {
         Page: () => <WarehousesPage />,
       },
     },
     {
-      id: "promotions",
+      id: "kargo-promotions",
       components: {
         Page: () => <PromotionsPage />,
       },
     },
     {
-      id: "promotion-policies",
+      id: "kargo-promotion-policies",
       components: {
         Page: () => <PromotionPoliciesPage />,
       },
     },
     {
-      id: "analysis-templates",
+      id: "kargo-analysis-templates",
       components: {
         Page: () => <AnalysisTemplatesPage />,
       },
@@ -91,64 +91,64 @@ export default class KargoExtension extends Renderer.LensExtension {
     {
       id: "kargo",
       title: "Kargo",
-      target: { pageId: "dashboard" },
+      target: { pageId: "kargo-dashboard" },
       components: {
         Icon: KargoIcon,
       },
     },
     {
-      id: "dashboard",
+      id: "kargo-dashboard",
       parentId: "kargo",
-      target: { pageId: "dashboard" },
+      target: { pageId: "kargo-dashboard" },
       title: "Overview",
       components: {},
     },
     {
-      id: "projects",
+      id: "kargo-projects",
       parentId: "kargo",
-      target: { pageId: "projects" },
+      target: { pageId: "kargo-projects" },
       title: Project.crd.title,
       components: {},
     },
     {
-      id: "stages",
+      id: "kargo-stages",
       parentId: "kargo",
-      target: { pageId: "stages" },
+      target: { pageId: "kargo-stages" },
       title: Stage.crd.title,
       components: {},
     },
     {
-      id: "freight",
+      id: "kargo-freight",
       parentId: "kargo",
-      target: { pageId: "freight" },
+      target: { pageId: "kargo-freight" },
       title: Freight.crd.title,
       components: {},
     },
     {
-      id: "warehouses",
+      id: "kargo-warehouses",
       parentId: "kargo",
-      target: { pageId: "warehouses" },
+      target: { pageId: "kargo-warehouses" },
       title: Warehouse.crd.title,
       components: {},
     },
     {
-      id: "promotions",
+      id: "kargo-promotions",
       parentId: "kargo",
-      target: { pageId: "promotions" },
+      target: { pageId: "kargo-promotions" },
       title: Promotion.crd.title,
       components: {},
     },
     {
-      id: "promotion-policies",
+      id: "kargo-promotion-policies",
       parentId: "kargo",
-      target: { pageId: "promotion-policies" },
+      target: { pageId: "kargo-promotion-policies" },
       title: PromotionPolicy.crd.title,
       components: {},
     },
     {
-      id: "analysis-templates",
+      id: "kargo-analysis-templates",
       parentId: "kargo",
-      target: { pageId: "analysis-templates" },
+      target: { pageId: "kargo-analysis-templates" },
       title: AnalysisTemplate.crd.title,
       components: {},
     },
