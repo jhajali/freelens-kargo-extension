@@ -18,7 +18,7 @@ const sortingCallbacks = {
   name: (object: KubeObject) => object.getName(),
   namespace: (object: KubeObject) => object.getNs(),
   stage: (object: KubeObject) => KubeObject.getStage(object),
-  autoPromotion: (object: KubeObject) => KubeObject.isAutoPromotionEnabled(object),
+  autoPromotion: (object: KubeObject) => KubeObject.isAutoPromotionEnabled(object) ? 1 : 0,
   age: (object: KubeObject) => object.getCreationTimestamp(),
 };
 

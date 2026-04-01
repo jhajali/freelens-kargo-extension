@@ -1,6 +1,5 @@
-import { Common, Renderer } from "@freelensapp/extensions";
+import { Renderer } from "@freelensapp/extensions";
 import { observer } from "mobx-react";
-import { useEffect, useRef, useState } from "react";
 import { Freight } from "../../k8s/kargo/freight-v1alpha1";
 import { Stage } from "../../k8s/kargo/stage-v1alpha1";
 import { Warehouse } from "../../k8s/kargo/warehouse-v1alpha1";
@@ -11,13 +10,8 @@ import styles from "./pipeline-graph.module.scss";
 import stylesInline from "./pipeline-graph.module.scss?inline";
 
 const {
-  Component: { NamespaceSelectFilter },
   Navigation: { getDetailsUrl },
 } = Renderer;
-
-const {
-  Util: { cssNames },
-} = Common;
 
 export interface PipelineGraphProps {
   stages: Stage[];
