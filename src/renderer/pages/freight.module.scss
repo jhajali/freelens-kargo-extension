@@ -1,0 +1,35 @@
+.page {
+  :global(.TableCell) {
+    &.warehouse {
+      flex-grow: 0.7;
+    }
+
+    &.alias {
+      flex-grow: 0.5;
+    }
+
+    &.commits {
+      flex-grow: 0.8;
+    }
+
+    &.images {
+      flex-grow: 1;
+    }
+
+    &.charts {
+      flex-grow: 0.8;
+    }
+
+    &.verified {
+      flex-grow: 0.4;
+    }
+
+    &.approved {
+      flex-grow: 0.4;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}

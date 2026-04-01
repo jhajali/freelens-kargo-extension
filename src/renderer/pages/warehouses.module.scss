@@ -1,0 +1,19 @@
+.page {
+  :global(.TableCell) {
+    &.policy {
+      flex-grow: 0.7;
+    }
+
+    &.subscriptions {
+      flex-grow: 1;
+    }
+
+    &.lastFreight {
+      flex-grow: 0.8;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}

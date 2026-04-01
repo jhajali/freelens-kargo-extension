@@ -1,0 +1,27 @@
+.page {
+  :global(.TableCell) {
+    &.stage {
+      flex-grow: 0.7;
+    }
+
+    &.freight {
+      flex-grow: 0.7;
+    }
+
+    &.phase {
+      flex-grow: 0.6;
+    }
+
+    &.message {
+      flex-grow: 1.3;
+    }
+
+    &.finished {
+      flex-grow: 0.5;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}

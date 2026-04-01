@@ -1,0 +1,15 @@
+.page {
+  :global(.TableCell) {
+    &.metrics {
+      flex-grow: 0.5;
+    }
+
+    &.args {
+      flex-grow: 0.5;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}
