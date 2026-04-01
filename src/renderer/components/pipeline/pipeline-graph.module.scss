@@ -1,0 +1,81 @@
+@use "../../vars";
+
+.pipelineContainer {
+  position: relative;
+  overflow: auto;
+  padding: vars.$padding * 3;
+  background: var(--contentColor);
+  border-radius: 8px;
+  min-height: 200px;
+}
+
+.pipelineRow {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: nowrap;
+  min-width: min-content;
+}
+
+.warehouseNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: vars.$padding * 2;
+  border-radius: 4px;
+  border: 2px solid var(--borderColor);
+  background: var(--layoutBackground);
+  min-width: 120px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--textColorPrimary);
+  }
+}
+
+.warehouseName {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.warehouseType {
+  font-size: 11px;
+  color: var(--textColorSecondary);
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  color: var(--textColorSecondary);
+  font-size: 20px;
+  user-select: none;
+}
+
+.stageGroup {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.stageWrapper {
+  position: relative;
+}
+
+.freightDock {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.projectSelector {
+  margin-bottom: vars.$margin * 2;
+}
+
+.noData {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: var(--textColorSecondary);
+}

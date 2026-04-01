@@ -1,0 +1,24 @@
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.overlay {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  animation: pulse 2s infinite;
+
+  &.running {
+    background: #FF6600;
+  }
+
+  &.pending {
+    background: #3d90ce;
+  }
+}

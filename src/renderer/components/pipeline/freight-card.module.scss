@@ -1,0 +1,28 @@
+.freightCard {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--layoutBackground);
+  border: 1px solid var(--borderFaintColor);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--borderFaintColor);
+  }
+}
+
+.alias {
+  font-weight: 600;
+}
+
+.summary {
+  color: var(--textColorSecondary);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
