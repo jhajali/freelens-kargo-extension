@@ -1,12 +1,11 @@
 import { Renderer } from "@freelensapp/extensions";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 import { observer } from "mobx-react";
 import { Promotion } from "../../k8s/kargo/promotion-v1alpha1";
 import { defaultYamlDumpOptions, getHeight } from "../../utils";
 import { DurationAbsoluteTimestamp } from "../duration-absolute";
 import { getPromotionPhaseClass, getPromotionPhaseText } from "../status-conditions";
 import styles from "./promotion-details.module.scss";
-import stylesInline from "./promotion-details.module.scss?inline";
 
 const {
   Component: { Badge, DrawerItem, DrawerTitle, MonacoEditor, Table, TableCell, TableHead, TableRow },
@@ -21,11 +20,10 @@ export const PromotionDetails: React.FC<Renderer.Component.KubeObjectDetailsProp
   const message = Promotion.getMessage(object);
   const finishedAt = Promotion.getFinishedAt(object);
   const steps = object.spec?.steps ?? [];
-  const specYaml = yaml.dump(object.spec ?? {}, defaultYamlDumpOptions);
+  const specYaml = dump(object.spec ?? {}, defaultYamlDumpOptions);
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.details}>
         <DrawerItem name="Phase">
           <Badge label={getPromotionPhaseText(phase)} className={getPromotionPhaseClass(phase)} />

@@ -1,13 +1,6 @@
 import { Renderer } from "@freelensapp/extensions";
 
-import type {
-  Chart,
-  FreightOrigin,
-  GitCommit,
-  Image,
-  KargoKubeObjectCRD,
-  KargoKubeObjectStatus,
-} from "./types";
+import type { Chart, FreightOrigin, GitCommit, Image, KargoKubeObjectCRD, KargoKubeObjectStatus } from "./types";
 
 export interface FreightSpec {
   origin?: FreightOrigin;
@@ -26,6 +19,9 @@ export class Freight extends Renderer.K8sApi.LensExtensionKubeObject<
   FreightStatus,
   FreightSpec
 > {
+  declare kind: "Freight";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "Freight";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/freight";

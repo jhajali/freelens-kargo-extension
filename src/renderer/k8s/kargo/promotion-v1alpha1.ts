@@ -30,6 +30,9 @@ export class Promotion extends Renderer.K8sApi.LensExtensionKubeObject<
   PromotionStatus,
   PromotionSpec
 > {
+  declare kind: "Promotion";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "Promotion";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/promotions";

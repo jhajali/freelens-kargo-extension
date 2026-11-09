@@ -1,7 +1,5 @@
 import { Renderer } from "@freelensapp/extensions";
 
-import type { Condition } from "@freelensapp/kube-object";
-
 import type {
   FreightReference,
   KargoKubeObjectCRD,
@@ -32,7 +30,7 @@ export interface StageStatus extends KargoKubeObjectStatus {
   health?: StageHealth;
   currentFreight?: FreightReference;
   freightHistory?: FreightReference[];
-  conditions?: Condition[];
+  conditions?: Renderer.K8sApi.Condition[];
   currentPromotion?: StagePromotionInfo;
   lastPromotion?: StagePromotionInfo;
   observedGeneration?: number;
@@ -43,6 +41,9 @@ export class Stage extends Renderer.K8sApi.LensExtensionKubeObject<
   StageStatus,
   StageSpec
 > {
+  declare kind: "Stage";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "Stage";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/stages";

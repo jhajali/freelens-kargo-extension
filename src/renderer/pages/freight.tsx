@@ -1,9 +1,8 @@
 import { Renderer } from "@freelensapp/extensions";
 import { observer } from "mobx-react";
-import { withErrorPage } from "../components/error-page";
 import { Freight, type FreightApi } from "../k8s/kargo/freight-v1alpha1";
+import { tryGetStore } from "../utils";
 import styles from "./freight.module.scss";
-import stylesInline from "./freight.module.scss?inline";
 
 const {
   Component: { KubeObjectListLayout, KubeObjectAge, NamespaceSelectBadge, WithTooltip },
@@ -39,37 +38,35 @@ const renderTableHeader: { title: string; sortBy: keyof typeof sortingCallbacks;
   { title: "Age", sortBy: "age", className: styles.age },
 ];
 
-export const FreightPage = observer(() =>
-  withErrorPage(() => {
-    const store = KubeObject.getStore<KubeObject>();
+export const FreightPage = observer(() => {
+  const store = tryGetStore(() => KubeObject.getStore<KubeObject>());
+  if (!store) return null;
 
-    return (
-      <>
-        <style>{stylesInline}</style>
-        <KubeObjectListLayout<KubeObject, KubeObjectApi>
-          tableId={`${KubeObject.crd.plural}Table`}
-          className={styles.page}
-          store={store}
-          sortingCallbacks={sortingCallbacks}
-          searchFilters={[(object: KubeObject) => object.getSearchFields()]}
-          renderHeaderTitle={KubeObject.crd.title}
-          renderTableHeader={renderTableHeader}
-          renderTableContents={(object: KubeObject) => {
-            return [
-              <WithTooltip>{object.getName()}</WithTooltip>,
-              <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
-              <WithTooltip>{KubeObject.getOriginWarehouse(object)}</WithTooltip>,
-              <WithTooltip>{KubeObject.getAlias(object)}</WithTooltip>,
-              <WithTooltip>{KubeObject.getCommitsSummary(object) || "\u2014"}</WithTooltip>,
-              <WithTooltip>{KubeObject.getImagesSummary(object) || "\u2014"}</WithTooltip>,
-              <WithTooltip>{KubeObject.getChartsSummary(object) || "\u2014"}</WithTooltip>,
-              KubeObject.getVerifiedInCount(object),
-              KubeObject.getApprovedForCount(object),
-              <KubeObjectAge object={object} key="age" />,
-            ];
-          }}
-        />
-      </>
-    );
-  }),
-);
+  return (
+    <>
+      <KubeObjectListLayout<KubeObject, KubeObjectApi>
+        tableId={`${KubeObject.crd.plural}Table`}
+        className={styles.page}
+        store={store}
+        sortingCallbacks={sortingCallbacks}
+        searchFilters={[(object: KubeObject) => object.getSearchFields()]}
+        renderHeaderTitle={KubeObject.crd.title}
+        renderTableHeader={renderTableHeader}
+        renderTableContents={(object: KubeObject) => {
+          return [
+            <WithTooltip>{object.getName()}</WithTooltip>,
+            <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
+            <WithTooltip>{KubeObject.getOriginWarehouse(object)}</WithTooltip>,
+            <WithTooltip>{KubeObject.getAlias(object)}</WithTooltip>,
+            <WithTooltip>{KubeObject.getCommitsSummary(object) || "\u2014"}</WithTooltip>,
+            <WithTooltip>{KubeObject.getImagesSummary(object) || "\u2014"}</WithTooltip>,
+            <WithTooltip>{KubeObject.getChartsSummary(object) || "\u2014"}</WithTooltip>,
+            KubeObject.getVerifiedInCount(object),
+            KubeObject.getApprovedForCount(object),
+            <KubeObjectAge object={object} key="age" />,
+          ];
+        }}
+      />
+    </>
+  );
+});

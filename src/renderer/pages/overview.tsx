@@ -1,36 +1,32 @@
-import { Common, Renderer } from "@freelensapp/extensions";
+import { Renderer } from "@freelensapp/extensions";
 import { observer } from "mobx-react";
-import { useEffect, useRef, useState } from "react";
-import { KargoEvents } from "../components/kargo-events";
+import { useEffect, useState } from "react";
 import { InfoPage } from "../components/info-page";
-import { StageHealthPieChart, PromotionResultsPieChart } from "../components/pie-chart";
+import { KargoEvents } from "../components/kargo-events";
+import { PromotionResultsPieChart, StageHealthPieChart } from "../components/pie-chart";
 import { PipelineGraph } from "../components/pipeline/pipeline-graph";
 import { Freight } from "../k8s/kargo/freight-v1alpha1";
 import { Promotion } from "../k8s/kargo/promotion-v1alpha1";
 import { Stage } from "../k8s/kargo/stage-v1alpha1";
 import { Warehouse } from "../k8s/kargo/warehouse-v1alpha1";
 import styles from "./overview.module.scss";
-import stylesInline from "./overview.module.scss?inline";
 
 const {
   Component: { NamespaceSelectFilter, TabLayout },
 } = Renderer;
 
-const {
-  Util: { cssNames },
-} = Common;
-
 export const KargoOverviewPage = observer(() => {
   const [loaded, setLoaded] = useState(false);
-  const watches = useRef<(() => void)[]>([]);
-  const abortController = useRef(new AbortController());
 
   useEffect(() => {
+    // Created per run of the effect: React.StrictMode cleans up and runs it again on the same instance.
     let isMounted = true;
+    const abortController = new AbortController();
+    const watches: (() => void)[] = [];
     (async () => {
       const namespaceStore = Renderer.K8sApi.namespaceStore;
-      await namespaceStore.loadAll({ namespaces: [], reqInit: { signal: abortController.current.signal } });
-      watches.current.push(namespaceStore.subscribe());
+      await namespaceStore.loadAll({ namespaces: [], reqInit: { signal: abortController.signal } });
+      watches.push(namespaceStore.subscribe());
 
       const namespaces = namespaceStore.items.map((ns) => ns.getName());
 
@@ -38,8 +34,8 @@ export const KargoOverviewPage = observer(() => {
         try {
           const store = object.getStore();
           if (!store) continue;
-          await store.loadAll({ namespaces, reqInit: { signal: abortController.current.signal } });
-          watches.current.push(store.subscribe());
+          await store.loadAll({ namespaces, reqInit: { signal: abortController.signal } });
+          watches.push(store.subscribe());
         } catch (_) {
           continue;
         }
@@ -50,9 +46,8 @@ export const KargoOverviewPage = observer(() => {
 
     return () => {
       isMounted = false;
-      abortController.current.abort();
-      watches.current.forEach((w) => w());
-      watches.current = [];
+      abortController.abort();
+      watches.forEach((w) => w());
     };
   }, []);
 
@@ -87,7 +82,6 @@ export const KargoOverviewPage = observer(() => {
 
   return (
     <>
-      <style>{stylesInline}</style>
       <TabLayout>
         <div className={styles.kargoContent}>
           <header>
@@ -102,12 +96,12 @@ export const KargoOverviewPage = observer(() => {
           <div className={styles.overviewStatuses}>
             <div className={styles.statuses}>
               {stages.length > 0 && (
-                <div className={cssNames(styles.chartColumn, "column")}>
+                <div className={styles.chartColumn}>
                   <StageHealthPieChart title="Stage Health" objects={stages} />
                 </div>
               )}
               {promotions.length > 0 && (
-                <div className={cssNames(styles.chartColumn, "column")}>
+                <div className={styles.chartColumn}>
                   <PromotionResultsPieChart title="Promotion Results" objects={promotions} />
                 </div>
               )}

@@ -14,6 +14,9 @@ export class PromotionPolicy extends Renderer.K8sApi.LensExtensionKubeObject<
   PromotionPolicyStatus,
   PromotionPolicySpec
 > {
+  declare kind: "PromotionPolicy";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "PromotionPolicy";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/promotionpolicies";

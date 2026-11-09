@@ -3,7 +3,6 @@ import { observer } from "mobx-react";
 import { Project } from "../../k8s/kargo/project-v1alpha1";
 import { getConditionClass, getConditionText, getProjectPhaseClass, getProjectPhaseText } from "../status-conditions";
 import styles from "./project-details.module.scss";
-import stylesInline from "./project-details.module.scss?inline";
 
 const {
   Component: { Badge, DrawerItem, DrawerTitle, Table, TableCell, TableHead, TableRow },
@@ -17,7 +16,6 @@ export const ProjectDetails: React.FC<Renderer.Component.KubeObjectDetailsProps<
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.details}>
         <DrawerItem name="Phase">
           <Badge label={getProjectPhaseText(phase)} className={getProjectPhaseClass(phase)} />

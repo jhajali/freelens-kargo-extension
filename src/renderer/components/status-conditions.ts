@@ -1,4 +1,4 @@
-import type { Condition } from "@freelensapp/kube-object";
+import type { Renderer } from "@freelensapp/extensions";
 
 import type { PromotionPhase, StageHealthState, StagePhase } from "../k8s/kargo/types";
 
@@ -104,21 +104,21 @@ export function getAutoPromotionClass(enabled: boolean): string {
 
 // --- Conditions ---
 
-export function getConditionText(conditions?: Condition[]): string {
+export function getConditionText(conditions?: Renderer.K8sApi.Condition[]): string {
   if (!conditions || conditions.length === 0) return "OK";
   const errors = conditions.filter((c) => c.type === "Error" || c.status === "False");
   if (errors.length > 0) return `${errors.length} Error(s)`;
   return "OK";
 }
 
-export function getConditionClass(conditions?: Condition[]): string {
+export function getConditionClass(conditions?: Renderer.K8sApi.Condition[]): string {
   if (!conditions || conditions.length === 0) return "success";
   const errors = conditions.filter((c) => c.type === "Error" || c.status === "False");
   if (errors.length > 0) return "error";
   return "success";
 }
 
-export function getStatusMessage(conditions?: Condition[]): string | undefined {
+export function getStatusMessage(conditions?: Renderer.K8sApi.Condition[]): string | undefined {
   if (!conditions || conditions.length === 0) return undefined;
   return conditions[0]?.message;
 }

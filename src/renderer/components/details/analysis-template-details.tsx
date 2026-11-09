@@ -1,10 +1,9 @@
 import { Renderer } from "@freelensapp/extensions";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 import { observer } from "mobx-react";
 import { AnalysisTemplate } from "../../k8s/kargo/analysis-template-v1alpha1";
 import { defaultYamlDumpOptions, getHeight } from "../../utils";
 import styles from "./analysis-template-details.module.scss";
-import stylesInline from "./analysis-template-details.module.scss?inline";
 
 const {
   Component: { DrawerItem, DrawerTitle, MonacoEditor, Table, TableCell, TableHead, TableRow },
@@ -15,11 +14,10 @@ export const AnalysisTemplateDetails: React.FC<Renderer.Component.KubeObjectDeta
     const { object } = props;
     const metrics = AnalysisTemplate.getMetrics(object);
     const args = AnalysisTemplate.getArgs(object);
-    const specYaml = yaml.dump(object.spec ?? {}, defaultYamlDumpOptions);
+    const specYaml = dump(object.spec ?? {}, defaultYamlDumpOptions);
 
     return (
       <>
-        <style>{stylesInline}</style>
         <div className={styles.details}>
           <DrawerItem name="Metrics Count">{metrics.length}</DrawerItem>
           <DrawerItem name="Args Count">{args.length}</DrawerItem>

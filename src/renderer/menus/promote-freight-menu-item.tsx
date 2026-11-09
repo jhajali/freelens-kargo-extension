@@ -1,31 +1,17 @@
-import { Renderer } from "@freelensapp/extensions";
-
-import type { Stage } from "../k8s/kargo/stage-v1alpha1";
+import { type Common, Renderer } from "@freelensapp/extensions";
+import { Stage } from "../k8s/kargo/stage-v1alpha1";
 
 const {
   Component: { MenuItem, Icon },
 } = Renderer;
 
-type KargoKubeObject = Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-type KargoKubeObjectCtor = typeof Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-
-export interface PromoteFreightMenuItemProps extends Renderer.Component.KubeObjectMenuProps<Stage> {
-  resource: KargoKubeObjectCtor;
-}
+export type PromoteFreightMenuItemProps = Common.Types.KubeObjectMenuItemProps<Stage>;
 
 export function PromoteFreightMenuItem(props: PromoteFreightMenuItemProps) {
-  const { object, toolbar, resource } = props;
+  const { object, toolbar } = props;
   if (!object) return <></>;
 
-  const store = resource.getStore<KargoKubeObject>();
+  const store = Stage.getStore<Stage>();
   if (!store) return <></>;
 
   const promote = async () => {
@@ -35,7 +21,7 @@ export function PromoteFreightMenuItem(props: PromoteFreightMenuItemProps) {
         metadata: {
           annotations: { "kargo.akuity.io/request-promote": new Date().toISOString() },
         },
-      } as any,
+      },
       "merge",
     );
   };

@@ -1,13 +1,11 @@
 import { Renderer } from "@freelensapp/extensions";
 
-import type { Condition } from "@freelensapp/kube-object";
-
 export interface KargoKubeObjectCRD extends Renderer.K8sApi.LensExtensionKubeObjectCRD {
   title: string;
 }
 
 export interface KargoKubeObjectStatus {
-  conditions?: Condition[];
+  conditions?: Renderer.K8sApi.Condition[];
 }
 
 // --- Stage types ---

@@ -1,31 +1,17 @@
-import { Renderer } from "@freelensapp/extensions";
-
-import type { Freight } from "../k8s/kargo/freight-v1alpha1";
+import { type Common, Renderer } from "@freelensapp/extensions";
+import { Freight } from "../k8s/kargo/freight-v1alpha1";
 
 const {
   Component: { MenuItem, Icon },
 } = Renderer;
 
-type KargoKubeObject = Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-type KargoKubeObjectCtor = typeof Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-
-export interface ApproveFreightMenuItemProps extends Renderer.Component.KubeObjectMenuProps<Freight> {
-  resource: KargoKubeObjectCtor;
-}
+export type ApproveFreightMenuItemProps = Common.Types.KubeObjectMenuItemProps<Freight>;
 
 export function ApproveFreightMenuItem(props: ApproveFreightMenuItemProps) {
-  const { object, toolbar, resource } = props;
+  const { object, toolbar } = props;
   if (!object) return <></>;
 
-  const store = resource.getStore<KargoKubeObject>();
+  const store = Freight.getStore<Freight>();
   if (!store) return <></>;
 
   const approve = async () => {
@@ -35,7 +21,7 @@ export function ApproveFreightMenuItem(props: ApproveFreightMenuItemProps) {
         metadata: {
           annotations: { "kargo.akuity.io/approved": new Date().toISOString() },
         },
-      } as any,
+      },
       "merge",
     );
   };
