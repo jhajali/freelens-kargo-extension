@@ -1,31 +1,17 @@
-import { Renderer } from "@freelensapp/extensions";
-
-import type { Warehouse } from "../k8s/kargo/warehouse-v1alpha1";
+import { type Common, Renderer } from "@freelensapp/extensions";
+import { Warehouse } from "../k8s/kargo/warehouse-v1alpha1";
 
 const {
   Component: { MenuItem, Icon },
 } = Renderer;
 
-type KargoKubeObject = Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-type KargoKubeObjectCtor = typeof Renderer.K8sApi.LensExtensionKubeObject<
-  Renderer.K8sApi.KubeObjectMetadata,
-  unknown,
-  unknown
->;
-
-export interface RefreshWarehouseMenuItemProps extends Renderer.Component.KubeObjectMenuProps<Warehouse> {
-  resource: KargoKubeObjectCtor;
-}
+export type RefreshWarehouseMenuItemProps = Common.Types.KubeObjectMenuItemProps<Warehouse>;
 
 export function RefreshWarehouseMenuItem(props: RefreshWarehouseMenuItemProps) {
-  const { object, toolbar, resource } = props;
+  const { object, toolbar } = props;
   if (!object) return <></>;
 
-  const store = resource.getStore<KargoKubeObject>();
+  const store = Warehouse.getStore<Warehouse>();
   if (!store) return <></>;
 
   const refresh = async () => {
@@ -35,7 +21,7 @@ export function RefreshWarehouseMenuItem(props: RefreshWarehouseMenuItemProps) {
         metadata: {
           annotations: { "kargo.akuity.io/refresh": new Date().toISOString() },
         },
-      } as any,
+      },
       "merge",
     );
   };

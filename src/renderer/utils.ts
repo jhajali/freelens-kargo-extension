@@ -25,10 +25,9 @@ export function getHeight(data?: string): number {
 }
 
 export const defaultYamlDumpOptions: DumpOptions = {
-  noArrayIndent: true,
-  noCompatMode: true,
+  seqNoIndent: true,
   noRefs: true,
-  quotingType: '"',
+  quoteStyle: "double",
   sortKeys: true,
 };
 
@@ -40,4 +39,14 @@ export function createEnumFromKeys<T extends Record<string, any>>(obj: T): Recor
     },
     {} as Record<keyof T, keyof T>,
   );
+}
+
+// The host throws when the cluster does not serve the kind; a page then renders nothing. Call it in an observer:
+// the host registers the store once the cluster frame has loaded the CRDs, and the page renders again.
+export function tryGetStore<T>(getStore: () => T): T | undefined {
+  try {
+    return getStore();
+  } catch {
+    return undefined;
+  }
 }

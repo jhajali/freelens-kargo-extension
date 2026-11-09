@@ -6,18 +6,23 @@ import { PromotionDetails } from "./components/details/promotion-details";
 import { PromotionPolicyDetails } from "./components/details/promotion-policy-details";
 import { StageDetails } from "./components/details/stage-details";
 import { WarehouseDetails } from "./components/details/warehouse-details";
+import {
+  withDetailsErrorBoundary,
+  withMenuItemErrorBoundary,
+  withPageErrorBoundary,
+} from "./components/error-boundary";
 import svgIcon from "./icons/kargo.svg?raw";
 import { AnalysisTemplate } from "./k8s/kargo/analysis-template-v1alpha1";
 import { Freight } from "./k8s/kargo/freight-v1alpha1";
 import { Project } from "./k8s/kargo/project-v1alpha1";
-import { Promotion } from "./k8s/kargo/promotion-v1alpha1";
 import { PromotionPolicy } from "./k8s/kargo/promotion-policy-v1alpha1";
+import { Promotion } from "./k8s/kargo/promotion-v1alpha1";
 import { Stage } from "./k8s/kargo/stage-v1alpha1";
 import { Warehouse } from "./k8s/kargo/warehouse-v1alpha1";
-import { AbortPromotionMenuItem, type AbortPromotionMenuItemProps } from "./menus/abort-promotion-menu-item";
-import { ApproveFreightMenuItem, type ApproveFreightMenuItemProps } from "./menus/approve-freight-menu-item";
-import { PromoteFreightMenuItem, type PromoteFreightMenuItemProps } from "./menus/promote-freight-menu-item";
-import { RefreshWarehouseMenuItem, type RefreshWarehouseMenuItemProps } from "./menus/refresh-warehouse-menu-item";
+import { AbortPromotionMenuItem } from "./menus/abort-promotion-menu-item";
+import { ApproveFreightMenuItem } from "./menus/approve-freight-menu-item";
+import { PromoteFreightMenuItem } from "./menus/promote-freight-menu-item";
+import { RefreshWarehouseMenuItem } from "./menus/refresh-warehouse-menu-item";
 import { AnalysisTemplatesPage } from "./pages/analysis-templates";
 import { FreightPage } from "./pages/freight";
 import { KargoOverviewPage } from "./pages/overview";
@@ -36,7 +41,7 @@ export function KargoIcon(props: Renderer.Component.IconProps) {
 }
 
 export default class KargoExtension extends Renderer.LensExtension {
-  clusterPages = [
+  clusterPages: Renderer.LensExtension["clusterPages"] = [
     {
       id: "kargo-dashboard",
       components: {
@@ -85,7 +90,7 @@ export default class KargoExtension extends Renderer.LensExtension {
         Page: () => <AnalysisTemplatesPage />,
       },
     },
-  ];
+  ].map((registration) => withPageErrorBoundary(this, registration));
 
   clusterPageMenus = [
     {
@@ -154,105 +159,23 @@ export default class KargoExtension extends Renderer.LensExtension {
     },
   ];
 
-  kubeObjectDetailItems = [
-    {
-      kind: Project.kind,
-      apiVersions: Project.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<Project>) => <ProjectDetails {...props} />,
-      },
-    },
-    {
-      kind: Stage.kind,
-      apiVersions: Stage.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<Stage>) => <StageDetails {...props} />,
-      },
-    },
-    {
-      kind: Freight.kind,
-      apiVersions: Freight.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<Freight>) => <FreightDetails {...props} />,
-      },
-    },
-    {
-      kind: Warehouse.kind,
-      apiVersions: Warehouse.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<Warehouse>) => <WarehouseDetails {...props} />,
-      },
-    },
-    {
-      kind: Promotion.kind,
-      apiVersions: Promotion.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<Promotion>) => <PromotionDetails {...props} />,
-      },
-    },
-    {
-      kind: PromotionPolicy.kind,
-      apiVersions: PromotionPolicy.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<PromotionPolicy>) => (
-          <PromotionPolicyDetails {...props} />
-        ),
-      },
-    },
-    {
-      kind: AnalysisTemplate.kind,
-      apiVersions: AnalysisTemplate.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<AnalysisTemplate>) => (
-          <AnalysisTemplateDetails {...props} />
-        ),
-      },
-    },
-  ];
+  kubeObjectDetailItems: Renderer.LensExtension["kubeObjectDetailItems"] = [
+    Renderer.K8sApi.detailsFor(Project, { priority: 10, Details: ProjectDetails }),
+    Renderer.K8sApi.detailsFor(Stage, { priority: 10, Details: StageDetails }),
+    Renderer.K8sApi.detailsFor(Freight, { priority: 10, Details: FreightDetails }),
+    Renderer.K8sApi.detailsFor(Warehouse, { priority: 10, Details: WarehouseDetails }),
+    Renderer.K8sApi.detailsFor(Promotion, { priority: 10, Details: PromotionDetails }),
+    Renderer.K8sApi.detailsFor(PromotionPolicy, { priority: 10, Details: PromotionPolicyDetails }),
+    Renderer.K8sApi.detailsFor(AnalysisTemplate, { priority: 10, Details: AnalysisTemplateDetails }),
+  ].map((registration) => withDetailsErrorBoundary(this, registration));
 
-  kubeObjectMenuItems = [
-    {
-      kind: Stage.kind,
-      apiVersions: Stage.crd.apiVersions,
-      components: {
-        MenuItem: (props: PromoteFreightMenuItemProps) => (
-          <PromoteFreightMenuItem {...props} resource={Stage} />
-        ),
-      },
-    },
-    {
-      kind: Warehouse.kind,
-      apiVersions: Warehouse.crd.apiVersions,
-      components: {
-        MenuItem: (props: RefreshWarehouseMenuItemProps) => (
-          <RefreshWarehouseMenuItem {...props} resource={Warehouse} />
-        ),
-      },
-    },
-    {
-      kind: Freight.kind,
-      apiVersions: Freight.crd.apiVersions,
-      components: {
-        MenuItem: (props: ApproveFreightMenuItemProps) => (
-          <ApproveFreightMenuItem {...props} resource={Freight} />
-        ),
-      },
-    },
-    {
-      kind: Promotion.kind,
-      apiVersions: Promotion.crd.apiVersions,
-      components: {
-        MenuItem: (props: AbortPromotionMenuItemProps) => (
-          <AbortPromotionMenuItem {...props} resource={Promotion} />
-        ),
-      },
-    },
-  ];
+  kubeObjectMenuItems: Renderer.LensExtension["kubeObjectMenuItems"] = [
+    Renderer.K8sApi.menuItemFor(Stage, { MenuItem: PromoteFreightMenuItem }),
+    Renderer.K8sApi.menuItemFor(Warehouse, { MenuItem: RefreshWarehouseMenuItem }),
+    Renderer.K8sApi.menuItemFor(Freight, { MenuItem: ApproveFreightMenuItem }),
+    Renderer.K8sApi.menuItemFor(Promotion, { MenuItem: AbortPromotionMenuItem }),
+  ].map((registration) => withMenuItemErrorBoundary(this, registration));
+
+  // Every kind has a page of its own, so the Custom Resources tree of the cluster sidebar does not list it again.
+  customResources = [Project, Stage, Freight, Warehouse, Promotion, PromotionPolicy, AnalysisTemplate];
 }

@@ -14,6 +14,9 @@ export class AnalysisTemplate extends Renderer.K8sApi.LensExtensionKubeObject<
   AnalysisTemplateStatus,
   AnalysisTemplateSpec
 > {
+  declare kind: "AnalysisTemplate";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "AnalysisTemplate";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/analysistemplates";

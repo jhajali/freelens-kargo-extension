@@ -1,10 +1,9 @@
 import { Renderer } from "@freelensapp/extensions";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 import { observer } from "mobx-react";
 import { Warehouse } from "../../k8s/kargo/warehouse-v1alpha1";
 import { defaultYamlDumpOptions, getHeight } from "../../utils";
 import styles from "./warehouse-details.module.scss";
-import stylesInline from "./warehouse-details.module.scss?inline";
 
 const {
   Component: { DrawerItem, DrawerTitle, MonacoEditor, Table, TableCell, TableHead, TableRow, WithTooltip },
@@ -17,11 +16,10 @@ export const WarehouseDetails: React.FC<Renderer.Component.KubeObjectDetailsProp
   const interval = Warehouse.getInterval(object);
   const lastFreight = Warehouse.getLastFreightName(object);
   const subs = object.spec?.subscriptions;
-  const specYaml = yaml.dump(object.spec ?? {}, defaultYamlDumpOptions);
+  const specYaml = dump(object.spec ?? {}, defaultYamlDumpOptions);
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.details}>
         <DrawerItem name="Freight Creation Policy">{policy}</DrawerItem>
         {interval && <DrawerItem name="Interval">{interval}</DrawerItem>}
@@ -38,7 +36,9 @@ export const WarehouseDetails: React.FC<Renderer.Component.KubeObjectDetailsProp
               </TableHead>
               {subs.git.map((sub, i) => (
                 <TableRow key={`${sub.repoURL}-${i}`}>
-                  <TableCell><WithTooltip>{sub.repoURL}</WithTooltip></TableCell>
+                  <TableCell>
+                    <WithTooltip>{sub.repoURL}</WithTooltip>
+                  </TableCell>
                   <TableCell>{sub.branch ?? ""}</TableCell>
                   <TableCell>{sub.commitSelectionStrategy ?? ""}</TableCell>
                 </TableRow>
@@ -59,7 +59,9 @@ export const WarehouseDetails: React.FC<Renderer.Component.KubeObjectDetailsProp
               </TableHead>
               {subs.images.map((sub, i) => (
                 <TableRow key={`${sub.repoURL}-${i}`}>
-                  <TableCell><WithTooltip>{sub.repoURL}</WithTooltip></TableCell>
+                  <TableCell>
+                    <WithTooltip>{sub.repoURL}</WithTooltip>
+                  </TableCell>
                   <TableCell>{sub.tagSelectionStrategy ?? ""}</TableCell>
                   <TableCell>{sub.semverConstraint ?? ""}</TableCell>
                   <TableCell>{sub.platform ?? ""}</TableCell>
@@ -80,7 +82,9 @@ export const WarehouseDetails: React.FC<Renderer.Component.KubeObjectDetailsProp
               </TableHead>
               {subs.charts.map((sub, i) => (
                 <TableRow key={`${sub.repoURL}-${i}`}>
-                  <TableCell><WithTooltip>{sub.repoURL}</WithTooltip></TableCell>
+                  <TableCell>
+                    <WithTooltip>{sub.repoURL}</WithTooltip>
+                  </TableCell>
                   <TableCell>{sub.name ?? ""}</TableCell>
                   <TableCell>{sub.semverConstraint ?? ""}</TableCell>
                 </TableRow>

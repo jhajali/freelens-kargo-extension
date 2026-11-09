@@ -1,6 +1,5 @@
 import { Renderer } from "@freelensapp/extensions";
 import { observer } from "mobx-react";
-import { withErrorPage } from "../components/error-page";
 import {
   getStageHealthClass,
   getStageHealthText,
@@ -8,8 +7,8 @@ import {
   getStagePhaseText,
 } from "../components/status-conditions";
 import { Stage, type StageApi } from "../k8s/kargo/stage-v1alpha1";
+import { tryGetStore } from "../utils";
 import styles from "./stages.module.scss";
-import stylesInline from "./stages.module.scss?inline";
 
 const {
   Component: { Badge, KubeObjectListLayout, KubeObjectAge, NamespaceSelectBadge, WithTooltip },
@@ -41,41 +40,39 @@ const renderTableHeader: { title: string; sortBy: keyof typeof sortingCallbacks;
   { title: "Age", sortBy: "age", className: styles.age },
 ];
 
-export const StagesPage = observer(() =>
-  withErrorPage(() => {
-    const store = KubeObject.getStore<KubeObject>();
+export const StagesPage = observer(() => {
+  const store = tryGetStore(() => KubeObject.getStore<KubeObject>());
+  if (!store) return null;
 
-    return (
-      <>
-        <style>{stylesInline}</style>
-        <KubeObjectListLayout<KubeObject, KubeObjectApi>
-          tableId={`${KubeObject.crd.plural}Table`}
-          className={styles.page}
-          store={store}
-          sortingCallbacks={sortingCallbacks}
-          searchFilters={[(object: KubeObject) => object.getSearchFields()]}
-          renderHeaderTitle={KubeObject.crd.title}
-          renderTableHeader={renderTableHeader}
-          renderTableContents={(object: KubeObject) => {
-            return [
-              <WithTooltip>{object.getName()}</WithTooltip>,
-              <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
-              <WithTooltip>{KubeObject.getProject(object)}</WithTooltip>,
-              <Badge
-                label={getStagePhaseText(object.status?.phase)}
-                className={getStagePhaseClass(object.status?.phase)}
-              />,
-              <Badge
-                label={getStageHealthText(object.status?.health?.status)}
-                className={getStageHealthClass(object.status?.health?.status)}
-              />,
-              <WithTooltip>{KubeObject.getCurrentFreightName(object)}</WithTooltip>,
-              <WithTooltip>{KubeObject.getUpstreamStages(object).join(", ") || "\u2014"}</WithTooltip>,
-              <KubeObjectAge object={object} key="age" />,
-            ];
-          }}
-        />
-      </>
-    );
-  }),
-);
+  return (
+    <>
+      <KubeObjectListLayout<KubeObject, KubeObjectApi>
+        tableId={`${KubeObject.crd.plural}Table`}
+        className={styles.page}
+        store={store}
+        sortingCallbacks={sortingCallbacks}
+        searchFilters={[(object: KubeObject) => object.getSearchFields()]}
+        renderHeaderTitle={KubeObject.crd.title}
+        renderTableHeader={renderTableHeader}
+        renderTableContents={(object: KubeObject) => {
+          return [
+            <WithTooltip>{object.getName()}</WithTooltip>,
+            <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
+            <WithTooltip>{KubeObject.getProject(object)}</WithTooltip>,
+            <Badge
+              label={getStagePhaseText(object.status?.phase)}
+              className={getStagePhaseClass(object.status?.phase)}
+            />,
+            <Badge
+              label={getStageHealthText(object.status?.health?.status)}
+              className={getStageHealthClass(object.status?.health?.status)}
+            />,
+            <WithTooltip>{KubeObject.getCurrentFreightName(object)}</WithTooltip>,
+            <WithTooltip>{KubeObject.getUpstreamStages(object).join(", ") || "\u2014"}</WithTooltip>,
+            <KubeObjectAge object={object} key="age" />,
+          ];
+        }}
+      />
+    </>
+  );
+});

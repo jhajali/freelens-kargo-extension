@@ -1,6 +1,5 @@
 import { Common } from "@freelensapp/extensions";
 import styles from "./promotion-overlay.module.scss";
-import stylesInline from "./promotion-overlay.module.scss?inline";
 
 const {
   Util: { cssNames },
@@ -17,7 +16,6 @@ export function PromotionOverlay({ phase }: PromotionOverlayProps) {
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={cssNames(styles.overlay, phaseClass)}>{phase}</div>
     </>
   );

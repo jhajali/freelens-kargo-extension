@@ -4,10 +4,9 @@ import { Freight } from "../../k8s/kargo/freight-v1alpha1";
 import { Stage } from "../../k8s/kargo/stage-v1alpha1";
 import { Warehouse } from "../../k8s/kargo/warehouse-v1alpha1";
 import { FreightCard } from "./freight-card";
+import styles from "./pipeline-graph.module.scss";
 import { PromotionOverlay } from "./promotion-overlay";
 import { StageNode } from "./stage-node";
-import styles from "./pipeline-graph.module.scss";
-import stylesInline from "./pipeline-graph.module.scss?inline";
 
 const {
   Navigation: { getDetailsUrl },
@@ -35,7 +34,6 @@ export const PipelineGraph = observer(({ stages, warehouses, freight }: Pipeline
   if (stages.length === 0 && warehouses.length === 0) {
     return (
       <>
-        <style>{stylesInline}</style>
         <div className={styles.noData}>No Kargo resources found in selected namespace</div>
       </>
     );
@@ -95,11 +93,7 @@ export const PipelineGraph = observer(({ stages, warehouses, freight }: Pipeline
             {warehouses
               .filter((w) => w.getName() === warehouseName)
               .map((w) => (
-                <div
-                  key={w.getName()}
-                  className={styles.warehouseNode}
-                  onClick={() => handleWarehouseClick(w)}
-                >
+                <div key={w.getName()} className={styles.warehouseNode} onClick={() => handleWarehouseClick(w)}>
                   <div className={styles.warehouseName}>{w.getName()}</div>
                   <div className={styles.warehouseType}>{Warehouse.getSubscriptionsSummary(w)}</div>
                 </div>
@@ -112,7 +106,7 @@ export const PipelineGraph = observer(({ stages, warehouses, freight }: Pipeline
             {levelIdx > 0 && <div className={styles.arrow}>{"\u2192"}</div>}
             {level.map((stage) => {
               const currentFreight = Stage.getCurrentFreight(stage);
-              const currentPromoPhase = (stage.status?.currentPromotion as any)?.phase;
+              const currentPromoPhase = (stage.status?.currentPromotion as { phase?: string } | undefined)?.phase;
               return (
                 <div key={stage.getName()} className={styles.stageWrapper}>
                   <PromotionOverlay phase={currentPromoPhase} />
@@ -139,11 +133,8 @@ export const PipelineGraph = observer(({ stages, warehouses, freight }: Pipeline
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.pipelineContainer}>
-        {Array.from(warehouseStages.entries()).map(([wName, wStages]) =>
-          renderPipelineRow(wStages, wName),
-        )}
+        {Array.from(warehouseStages.entries()).map(([wName, wStages]) => renderPipelineRow(wStages, wName))}
         {rootStages.length > 0 && renderPipelineRow(rootStages)}
       </div>
     </>

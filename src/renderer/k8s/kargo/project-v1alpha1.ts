@@ -1,7 +1,5 @@
 import { Renderer } from "@freelensapp/extensions";
 
-import type { Condition } from "@freelensapp/kube-object";
-
 import type { KargoKubeObjectCRD, KargoKubeObjectStatus, ProjectPhase, ProjectPromotionPolicy } from "./types";
 
 export interface ProjectSpec {
@@ -10,7 +8,7 @@ export interface ProjectSpec {
 
 export interface ProjectStatus extends KargoKubeObjectStatus {
   phase?: ProjectPhase;
-  conditions?: Condition[];
+  conditions?: Renderer.K8sApi.Condition[];
 }
 
 export class Project extends Renderer.K8sApi.LensExtensionKubeObject<
@@ -18,6 +16,9 @@ export class Project extends Renderer.K8sApi.LensExtensionKubeObject<
   ProjectStatus,
   ProjectSpec
 > {
+  declare kind: "Project";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "Project";
   static readonly namespaced = false;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/projects";
@@ -34,7 +35,7 @@ export class Project extends Renderer.K8sApi.LensExtensionKubeObject<
     return object.status?.phase ?? "Unknown";
   }
 
-  static getConditions(object: Project): Condition[] {
+  static getConditions(object: Project): Renderer.K8sApi.Condition[] {
     return object.status?.conditions ?? [];
   }
 

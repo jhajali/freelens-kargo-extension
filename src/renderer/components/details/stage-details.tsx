@@ -1,16 +1,10 @@
 import { Renderer } from "@freelensapp/extensions";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 import { observer } from "mobx-react";
 import { Stage } from "../../k8s/kargo/stage-v1alpha1";
 import { defaultYamlDumpOptions, getHeight } from "../../utils";
-import {
-  getStageHealthClass,
-  getStageHealthText,
-  getStagePhaseClass,
-  getStagePhaseText,
-} from "../status-conditions";
+import { getStageHealthClass, getStageHealthText, getStagePhaseClass, getStagePhaseText } from "../status-conditions";
 import styles from "./stage-details.module.scss";
-import stylesInline from "./stage-details.module.scss?inline";
 
 const {
   Component: { Badge, DrawerItem, DrawerTitle, MonacoEditor, WithTooltip },
@@ -29,11 +23,10 @@ export const StageDetails: React.FC<Renderer.Component.KubeObjectDetailsProps<St
   const verification = Stage.getVerificationStatus(object);
   const currentPromo = Stage.getCurrentPromotionName(object);
   const lastPromo = Stage.getLastPromotionName(object);
-  const specYaml = yaml.dump(object.spec ?? {}, defaultYamlDumpOptions);
+  const specYaml = dump(object.spec ?? {}, defaultYamlDumpOptions);
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.details}>
         <DrawerItem name="Phase">
           <Badge label={getStagePhaseText(phase)} className={getStagePhaseClass(phase)} />
@@ -57,9 +50,7 @@ export const StageDetails: React.FC<Renderer.Component.KubeObjectDetailsProps<St
 
         {warehouseSub && <DrawerItem name="Warehouse Subscription">{warehouseSub}</DrawerItem>}
 
-        {upstreamStages.length > 0 && (
-          <DrawerItem name="Upstream Stages">{upstreamStages.join(", ")}</DrawerItem>
-        )}
+        {upstreamStages.length > 0 && <DrawerItem name="Upstream Stages">{upstreamStages.join(", ")}</DrawerItem>}
 
         <DrawerItem name="Promotion Mechanisms">{mechanisms}</DrawerItem>
 

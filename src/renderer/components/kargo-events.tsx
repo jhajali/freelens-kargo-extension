@@ -1,14 +1,13 @@
 import { Common, Renderer } from "@freelensapp/extensions";
-import { computed, makeObservable, observable } from "mobx";
+import { observable } from "mobx";
 import { observer } from "mobx-react";
-import moment from "moment";
-import React from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const {
   Component: {
     KubeObjectListLayout,
     Icon,
+    MaybeLink,
     KubeObjectAge,
     NamespaceSelectBadge,
     WithTooltip,
@@ -44,56 +43,48 @@ export interface KargoEventsProps {
   compactLimit?: number;
 }
 
-@observer
-export class KargoEvents extends React.Component<KargoEventsProps> {
-  readonly sorting = observable.object({
-    sortBy: columnId.age,
-    orderBy: "asc" as "asc" | "desc",
-  });
+type KubeEvent = Renderer.K8sApi.KubeEvent;
 
-  private sortingCallbacks = {
-    [columnId.namespace]: (event: Renderer.K8sApi.KubeEvent) => event.getNs(),
-    [columnId.type]: (event: Renderer.K8sApi.KubeEvent) => event.type,
-    [columnId.object]: (event: Renderer.K8sApi.KubeEvent) => event.involvedObject.name,
-    [columnId.count]: (event: Renderer.K8sApi.KubeEvent) => event.count,
-    [columnId.age]: (event: Renderer.K8sApi.KubeEvent) => -event.getCreationTimestamp(),
-    [columnId.lastSeen]: (event: Renderer.K8sApi.KubeEvent) =>
-      event.lastTimestamp ? -new Date(event.lastTimestamp).getTime() : 0,
+const sortingCallbacks = {
+  [columnId.namespace]: (event: KubeEvent) => event.getNs(),
+  [columnId.type]: (event: KubeEvent) => event.type,
+  [columnId.object]: (event: KubeEvent) => event.involvedObject.name,
+  [columnId.count]: (event: KubeEvent) => event.count,
+  [columnId.age]: (event: KubeEvent) => -event.getCreationTimestamp(),
+  [columnId.lastSeen]: (event: KubeEvent) => (event.lastTimestamp ? -new Date(event.lastTimestamp).getTime() : 0),
+};
+
+type Sorting = { sortBy: string; orderBy: "asc" | "desc" };
+
+function getSortedItems({ sortBy, orderBy }: Sorting): KubeEvent[] {
+  const items = eventStore.contextItems.filter(isKargoEvent);
+  const sortingCallback = sortingCallbacks[sortBy as keyof typeof sortingCallbacks];
+
+  return [...items].sort((a, b) => {
+    const valA = sortingCallback(a);
+    const valB = sortingCallback(b);
+    if (valA === valB) return 0;
+    // As before the port: an undefined value compares as false, so it sorts after every other value.
+    const compare = (valA as string | number) > (valB as string | number) ? 1 : -1;
+    return orderBy === "asc" ? compare : -compare;
+  });
+}
+
+// A function component: the host calls `getItems` and `customizeHeader` from its own derivations, where an
+// `@observer` class component may not read `this.props` under mobx-react 10. Both read only the props of this render.
+export const KargoEvents = observer(({ compact, compactLimit, className }: KargoEventsProps) => {
+  const [sorting] = useState(() => observable.object<Sorting>({ sortBy: columnId.age, orderBy: "asc" }));
+
+  const getVisibleItems = () => {
+    const items = getSortedItems(sorting);
+    return compact ? items.slice(0, compactLimit) : items;
   };
 
-  constructor(props: KargoEventsProps) {
-    super(props);
-    makeObservable(this);
-  }
-
-  @computed get items(): Renderer.K8sApi.KubeEvent[] {
-    const items = eventStore.contextItems.filter(isKargoEvent);
-    const { sortBy, orderBy } = this.sorting;
-
-    return [...items].sort((a, b) => {
-      const valA = this.sortingCallbacks[sortBy](a);
-      const valB = this.sortingCallbacks[sortBy](b);
-      if (valA === valB) return 0;
-      const compare = valA > valB ? 1 : -1;
-      return orderBy === "asc" ? compare : -compare;
-    });
-  }
-
-  @computed get visibleItems(): Renderer.K8sApi.KubeEvent[] {
-    const { compact, compactLimit } = this.props;
+  const customizeHeader = ({ info, title, ...headerPlaceholders }: Renderer.Component.HeaderPlaceholders) => {
     if (compact) {
-      return this.items.slice(0, compactLimit);
-    }
-    return this.items;
-  }
-
-  customizeHeader = ({ info, title, ...headerPlaceholders }: any) => {
-    const { compact } = this.props;
-    const { items, visibleItems } = this;
-    const allEventsAreShown = visibleItems.length === items.length;
-
-    if (compact) {
-      if (allEventsAreShown) {
+      const items = getSortedItems(sorting);
+      const visibleItems = getVisibleItems();
+      if (visibleItems.length === items.length) {
         return { title };
       }
       return {
@@ -122,76 +113,71 @@ export class KargoEvents extends React.Component<KargoEventsProps> {
     };
   };
 
-  render() {
-    const { compact, className, ...layoutProps } = this.props;
+  const events = (
+    <KubeObjectListLayout
+      isConfigurable
+      tableId="kargo-events"
+      store={eventStore}
+      className={cssNames("Events", className, { compact })}
+      renderHeaderTitle="Kargo Events"
+      customizeHeader={customizeHeader}
+      isSelectable={false}
+      getItems={getVisibleItems}
+      virtual={!compact}
+      tableProps={{
+        sortSyncWithUrl: false,
+        sortByDefault: sorting,
+        onSort: (params) => Object.assign(sorting, params),
+      }}
+      sortingCallbacks={sortingCallbacks}
+      searchFilters={[
+        (event) => event.getSearchFields(),
+        (event) => event.message,
+        (event) => event.getSource(),
+        (event) => event.involvedObject.name,
+      ]}
+      renderTableHeader={[
+        { title: "Type", className: "type", sortBy: columnId.type, id: columnId.type },
+        { title: "Message", className: "message", id: columnId.message },
+        { title: "Namespace", className: "namespace", sortBy: columnId.namespace, id: columnId.namespace },
+        { title: "Involved Object", className: "object", sortBy: columnId.object, id: columnId.object },
+        { title: "Source", className: "source", id: columnId.source },
+        { title: "Count", className: "count", sortBy: columnId.count, id: columnId.count },
+        { title: "Age", className: "age", sortBy: columnId.age, id: columnId.age },
+        { title: "Last Seen", className: "last-seen", sortBy: columnId.lastSeen, id: columnId.lastSeen },
+      ]}
+      renderTableContents={(event) => {
+        const { involvedObject, type, message } = event;
+        const isWarning = event.isWarning();
 
-    const events = (
-      <KubeObjectListLayout
-        {...layoutProps}
-        isConfigurable
-        tableId="kargo-events"
-        store={eventStore}
-        className={cssNames("Events", className, { compact })}
-        renderHeaderTitle="Kargo Events"
-        customizeHeader={this.customizeHeader}
-        isSelectable={false}
-        getItems={() => this.visibleItems}
-        virtual={!compact}
-        tableProps={{
-          sortSyncWithUrl: false,
-          sortByDefault: this.sorting,
-          onSort: (params) => Object.assign(this.sorting, params),
-        }}
-        sortingCallbacks={this.sortingCallbacks}
-        searchFilters={[
-          (event) => event.getSearchFields(),
-          (event) => event.message,
-          (event) => event.getSource(),
-          (event) => event.involvedObject.name,
-        ]}
-        renderTableHeader={[
-          { title: "Type", className: "type", sortBy: columnId.type, id: columnId.type },
-          { title: "Message", className: "message", id: columnId.message },
-          { title: "Namespace", className: "namespace", sortBy: columnId.namespace, id: columnId.namespace },
-          { title: "Involved Object", className: "object", sortBy: columnId.object, id: columnId.object },
-          { title: "Source", className: "source", id: columnId.source },
-          { title: "Count", className: "count", sortBy: columnId.count, id: columnId.count },
-          { title: "Age", className: "age", sortBy: columnId.age, id: columnId.age },
-          { title: "Last Seen", className: "last-seen", sortBy: columnId.lastSeen, id: columnId.lastSeen },
-        ]}
-        renderTableContents={(event) => {
-          const { involvedObject, type, message } = event;
-          const isWarning = event.isWarning();
+        return [
+          <WithTooltip>{type}</WithTooltip>,
+          {
+            className: cssNames({ warning: isWarning }),
+            title: <WithTooltip>{message}</WithTooltip>,
+          },
+          <NamespaceSelectBadge key="namespace" namespace={event.getNs()} />,
+          <MaybeLink
+            key="link"
+            to={getDetailsUrl(apiManager.lookupApiLink(involvedObject, event))}
+            onClick={stopPropagation}
+          >
+            <WithTooltip>{`${involvedObject.kind}: ${involvedObject.name}`}</WithTooltip>
+          </MaybeLink>,
+          <WithTooltip>{event.getSource()}</WithTooltip>,
+          event.count,
+          <KubeObjectAge key="age" object={event} />,
+          <WithTooltip tooltip={event.lastTimestamp ? new Date(event.lastTimestamp) : undefined}>
+            <ReactiveDuration key="last-seen" timestamp={event.lastTimestamp} />
+          </WithTooltip>,
+        ];
+      }}
+    />
+  );
 
-          return [
-            <WithTooltip>{type}</WithTooltip>,
-            {
-              className: cssNames({ warning: isWarning }),
-              title: <WithTooltip>{message}</WithTooltip>,
-            },
-            <NamespaceSelectBadge key="namespace" namespace={event.getNs()} />,
-            <Link
-              key="link"
-              to={getDetailsUrl(apiManager.lookupApiLink(involvedObject, event))}
-              onClick={stopPropagation}
-            >
-              <WithTooltip>{`${involvedObject.kind}: ${involvedObject.name}`}</WithTooltip>
-            </Link>,
-            <WithTooltip>{event.getSource()}</WithTooltip>,
-            event.count,
-            <KubeObjectAge key="age" object={event} />,
-            <WithTooltip tooltip={event.lastTimestamp ? moment(event.lastTimestamp).toDate() : undefined}>
-              <ReactiveDuration key="last-seen" timestamp={event.lastTimestamp} />
-            </WithTooltip>,
-          ];
-        }}
-      />
-    );
-
-    if (compact) {
-      return events;
-    }
-
-    return <TabLayout>{events}</TabLayout>;
+  if (compact) {
+    return events;
   }
-}
+
+  return <TabLayout>{events}</TabLayout>;
+});

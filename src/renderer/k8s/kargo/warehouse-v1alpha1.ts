@@ -1,11 +1,6 @@
 import { Renderer } from "@freelensapp/extensions";
 
-import type {
-  FreightCreationPolicy,
-  KargoKubeObjectCRD,
-  KargoKubeObjectStatus,
-  WarehouseSubscription,
-} from "./types";
+import type { FreightCreationPolicy, KargoKubeObjectCRD, KargoKubeObjectStatus, WarehouseSubscription } from "./types";
 
 export interface WarehouseSpec {
   subscriptions?: WarehouseSubscription;
@@ -27,6 +22,9 @@ export class Warehouse extends Renderer.K8sApi.LensExtensionKubeObject<
   WarehouseStatus,
   WarehouseSpec
 > {
+  declare kind: "Warehouse";
+  declare apiVersion: "kargo.akuity.io/v1alpha1";
+
   static readonly kind = "Warehouse";
   static readonly namespaced = true;
   static readonly apiBase = "/apis/kargo.akuity.io/v1alpha1/warehouses";

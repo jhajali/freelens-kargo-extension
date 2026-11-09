@@ -1,6 +1,11 @@
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .overlay {
@@ -15,7 +20,7 @@
   animation: pulse 2s infinite;
 
   &.running {
-    background: #FF6600;
+    background: #ff6600;
   }
 
   &.pending {

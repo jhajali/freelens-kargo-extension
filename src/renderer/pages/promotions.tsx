@@ -1,10 +1,9 @@
 import { Renderer } from "@freelensapp/extensions";
 import { observer } from "mobx-react";
-import { withErrorPage } from "../components/error-page";
 import { getPromotionPhaseClass, getPromotionPhaseText } from "../components/status-conditions";
 import { Promotion, type PromotionApi } from "../k8s/kargo/promotion-v1alpha1";
+import { tryGetStore } from "../utils";
 import styles from "./promotions.module.scss";
-import stylesInline from "./promotions.module.scss?inline";
 
 const {
   Component: { Badge, KubeObjectListLayout, KubeObjectAge, NamespaceSelectBadge, WithTooltip },
@@ -36,38 +35,36 @@ const renderTableHeader: { title: string; sortBy: keyof typeof sortingCallbacks;
   { title: "Age", sortBy: "age", className: styles.age },
 ];
 
-export const PromotionsPage = observer(() =>
-  withErrorPage(() => {
-    const store = KubeObject.getStore<KubeObject>();
+export const PromotionsPage = observer(() => {
+  const store = tryGetStore(() => KubeObject.getStore<KubeObject>());
+  if (!store) return null;
 
-    return (
-      <>
-        <style>{stylesInline}</style>
-        <KubeObjectListLayout<KubeObject, KubeObjectApi>
-          tableId={`${KubeObject.crd.plural}Table`}
-          className={styles.page}
-          store={store}
-          sortingCallbacks={sortingCallbacks}
-          searchFilters={[(object: KubeObject) => object.getSearchFields()]}
-          renderHeaderTitle={KubeObject.crd.title}
-          renderTableHeader={renderTableHeader}
-          renderTableContents={(object: KubeObject) => {
-            return [
-              <WithTooltip>{object.getName()}</WithTooltip>,
-              <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
-              <WithTooltip>{KubeObject.getTargetStage(object)}</WithTooltip>,
-              <WithTooltip>{KubeObject.getFreightRef(object)}</WithTooltip>,
-              <Badge
-                label={getPromotionPhaseText(object.status?.phase)}
-                className={getPromotionPhaseClass(object.status?.phase)}
-              />,
-              <WithTooltip>{KubeObject.getMessage(object) || "\u2014"}</WithTooltip>,
-              <WithTooltip>{KubeObject.getFinishedAt(object) || "\u2014"}</WithTooltip>,
-              <KubeObjectAge object={object} key="age" />,
-            ];
-          }}
-        />
-      </>
-    );
-  }),
-);
+  return (
+    <>
+      <KubeObjectListLayout<KubeObject, KubeObjectApi>
+        tableId={`${KubeObject.crd.plural}Table`}
+        className={styles.page}
+        store={store}
+        sortingCallbacks={sortingCallbacks}
+        searchFilters={[(object: KubeObject) => object.getSearchFields()]}
+        renderHeaderTitle={KubeObject.crd.title}
+        renderTableHeader={renderTableHeader}
+        renderTableContents={(object: KubeObject) => {
+          return [
+            <WithTooltip>{object.getName()}</WithTooltip>,
+            <NamespaceSelectBadge key="namespace" namespace={object.getNs() ?? ""} />,
+            <WithTooltip>{KubeObject.getTargetStage(object)}</WithTooltip>,
+            <WithTooltip>{KubeObject.getFreightRef(object)}</WithTooltip>,
+            <Badge
+              label={getPromotionPhaseText(object.status?.phase)}
+              className={getPromotionPhaseClass(object.status?.phase)}
+            />,
+            <WithTooltip>{KubeObject.getMessage(object) || "\u2014"}</WithTooltip>,
+            <WithTooltip>{KubeObject.getFinishedAt(object) || "\u2014"}</WithTooltip>,
+            <KubeObjectAge object={object} key="age" />,
+          ];
+        }}
+      />
+    </>
+  );
+});

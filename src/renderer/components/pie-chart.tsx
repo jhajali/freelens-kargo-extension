@@ -1,6 +1,5 @@
 import { Renderer } from "@freelensapp/extensions";
 import styles from "./pie-chart.module.scss";
-import stylesInline from "./pie-chart.module.scss?inline";
 
 import type React from "react";
 
@@ -46,19 +45,15 @@ export function StageHealthPieChart(props: StageHealthPieChartProps): React.Reac
         ],
       },
     ],
-    labels: [
-      `Healthy: ${healthy}`,
-      `Unhealthy: ${unhealthy}`,
-      `Progressing: ${progressing}`,
-      `Unknown: ${unknown}`,
-    ],
+    labels: [`Healthy: ${healthy}`, `Unhealthy: ${unhealthy}`, `Progressing: ${progressing}`, `Unknown: ${unknown}`],
   } as unknown as Renderer.Component.PieChartData;
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.title}>
-        <span>{title} ({objects.length})</span>
+        <span>
+          {title} ({objects.length})
+        </span>
       </div>
       <Renderer.Component.PieChart data={chartData} />
     </>
@@ -99,9 +94,10 @@ export function PromotionResultsPieChart(props: PromotionResultsPieChartProps): 
 
   return (
     <>
-      <style>{stylesInline}</style>
       <div className={styles.title}>
-        <span>{title} ({objects.length})</span>
+        <span>
+          {title} ({objects.length})
+        </span>
       </div>
       <Renderer.Component.PieChart data={chartData} />
     </>
